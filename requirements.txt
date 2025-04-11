@@ -1,0 +1,7 @@
+ffprobe==0.5
+googletrans==2.4.0
+num2words==0.5.13
+omegaconf==2.3.0
+spleeter==2.4.0
+torchaudio==2.3.1
+yt-dlp==2025.3.31
