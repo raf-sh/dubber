@@ -51,11 +51,14 @@ def extract_audio(video_file, audio_path):
 def separate_audio(audio_file, audio_path):
     voice_file = os.path.join(audio_path, "voice.wav")
     bg_file = os.path.join(audio_path, "background.wav")
+    # if you want to skip spleeter run - uncomment the line below
+    # return voice_file, bg_file
+    print(audio_path) 
     command = f"spleeter separate -o {audio_path} -p spleeter:2stems {audio_file}"
-
+    print(command)
     subprocess.run(command, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-    os.rename(os.path.join(audio_path, "vocals.wav"), voice_file)
-    os.rename(os.path.join(audio_path, "accompaniment.wav"), bg_file)
+    os.rename(os.path.join(audio_path, "original_audio/vocals.wav"), voice_file)
+    os.rename(os.path.join(audio_path, "original_audio/accompaniment.wav"), bg_file)
     return voice_file, bg_file
 
 
@@ -84,10 +87,11 @@ def convert_num_to_words(utterance):
       return utterance
 
 
-def translate_subtitles(subtitles, target_language="tt"):
+def translate_subtitles(subtitles, target_language="tatar"):
     translator = Translator()
     translated_subtitles = []
 
+    print("Target language", target_language)
     for subtitle in subtitles:
         orig_text = convert_num_to_words(subtitle['text'])
         translated_text = translator.translate(orig_text, dest=target_language).text
@@ -113,7 +117,7 @@ def generate_speech(translated_subtitles, audio_path, target_language="tt"):
 
         speech_files = []
         sample_rate = 48000
-        speaker = 'random' # You might need to adjust the speaker based on the language
+        speaker = 'random' # Adjust the speaker based on the language
         if target_language == 'tt':
             speaker = 'dilyara'
         elif target_language == 'es':
@@ -185,20 +189,20 @@ def adjust_audio_timing(audio_file, start_time, end_time, speed_factor=1.0):
     output_file = audio_file.replace(".wav", "_adjusted.wav")
     duration = end_time - start_time
 
-    print(f"Adjusting {audio_file} from {start_time} to {end_time} (duration {duration}), speed factor {speed_factor}")
-    print(f"Start time: {start_time}, End time: {end_time}, duration: {duration}")
+    # print(f"Adjusting {audio_file} from {start_time} to {end_time} (duration {duration}), speed factor {speed_factor}")
+    # print(f"Start time: {start_time}, End time: {end_time}, duration: {duration}")
 
     if speed_factor != 1.0:
       command = f"ffmpeg -i {audio_file} -filter:a \"atempo={speed_factor}, asetpts=PTS-STARTPTS\" -c:a pcm_s16le {output_file} -y" #attempt to use asetpts
     else:
       command = f"ffmpeg -i {audio_file} -ss {start_time} -t {duration} -c:a pcm_s16le {output_file} -y" #simplified no atempo
 
-    print(f"Executing: {command}")
-    output = subprocess.run(command, shell=True)
-
-    if output.returncode != 0:
-        print(f"Error adjusting audio: {output.stderr.decode() if output.stderr else 'No error'}")
-        return audio_file
+    # print(f"Executing: {command}")
+    with open("adjust_output.log", "w") as log_file:
+        output = subprocess.run(command, shell=True, stdout=log_file, stderr=log_file)
+        if output.returncode != 0:
+            print(f"Error adjusting audio: {output.stderr.decode() if output.stderr else 'No error'}")
+            return audio_file
     return output_file
 
 
@@ -206,13 +210,16 @@ def generate_silence(duration, output_path):
     """Generates a silence audio file using FFmpeg."""
     output_file = os.path.join(output_path, f"silence_debug_{int(duration * 1000)}.wav") # create unique output name
     command = f"ffmpeg -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=44100 -t {duration} {output_file} -y"
-    subprocess.run(command, shell=True)
+    with open("silence_output.log", "w") as log_file:
+        output = subprocess.run(command, shell=True, stdout=log_file, stderr=log_file)
+        if output.returncode != 0:
+            print(f"Error silence file generating: {output.stderr.decode() if output.stderr else 'No error'}")
+            return audio_file
     return output_file
 
 
 def create_adjusted_audio_video(video_file, speech_files, bg_audio_file, audio_path):
     """Creates a new video with adjusted audio timing using concat."""
-    audio_path = "downloads/audio"
     final_audio_parts = []
     last_end_time = 0
 
@@ -257,8 +264,8 @@ def create_adjusted_audio_video(video_file, speech_files, bg_audio_file, audio_p
             f.write(f"file '{part}'\n")
 
     print(f"Concat list file: {concat_list_file}")
-    with open(concat_list_file, 'r') as file:
-        print(file.read())
+    # with open(concat_list_file, 'r') as file:
+    #     print(file.read())
 
     # Use concat filter
     concat_command = f"ffmpeg -f concat -safe 0 -i {concat_list_file} -c copy {final_wav_file} -y"
@@ -272,26 +279,44 @@ def create_adjusted_audio_video(video_file, speech_files, bg_audio_file, audio_p
         return None
 
     final_audio_file = os.path.join(audio_path, "final_audio.aac")
-    aac_command = f"ffmpeg -i {final_wav_file} -c:a aac -strict experimental {final_audio_file} -y"
+    # Mix with background audio using amix
+    if bg_audio_file:
+        mixed_audio_file = os.path.join(audio_path, "mixed_audio.wav")
+        amix_command = f"ffmpeg -i {final_wav_file} -i {bg_audio_file} -filter_complex [0:a][1:a]amix=inputs=2:duration=longest {mixed_audio_file} -y"
 
-    with open("aac_encode.log", "w") as aac_log:
-        output_aac = subprocess.run(aac_command, shell=True, stdout=aac_log, stderr=aac_log)
+        print(f"Amix command: {amix_command}")
+        final_audio_file = mixed_audio_file  # Use the mixed audio
+        with open("amix_output.log", "w") as amix_log:
+            output_amix = subprocess.run(
+                amix_command, shell=True, stdout=amix_log, stderr=amix_log)
+        if output_amix.returncode != 0:
+            print(
+                "Error mixing audio with background. Check 'amix_output.log' for details.  Using only adjusted speech.")
+            final_audio_file = final_wav_file  # Use only the adjusted speech
+        else:
+            final_audio_file = mixed_audio_file  # Use the mixed audio
+    else:
+        aac_command = f"ffmpeg -i {final_wav_file} -c:a aac -strict experimental {final_audio_file} -y"
 
-    if output_aac.returncode != 0:
-        print(f"Error in AAC encoding. Check 'aac_encode.log' for details.")
-        return None
+        with open("aac_encode.log", "w") as aac_log:
+            output_aac = subprocess.run(
+                aac_command, shell=True, stdout=aac_log, stderr=aac_log)
 
-    # Debugging: Examine final_uncompressed.wav
-    print("Examining final_uncompressed.wav:")
-    subprocess.run(f"ffprobe {final_wav_file}", shell=True)
+        if output_aac.returncode != 0:
+            print(f"Error in AAC encoding. Check 'aac_encode.log' for details.")
+            return None
 
-    # Debugging: Examine final_audio.aac
-    print("Examining final_audio.aac:")
-    subprocess.run(f"ffprobe {final_audio_file}", shell=True)
+    # # Debugging: Examine final_uncompressed.wav
+    # print("Examining final_uncompressed.wav:")
+    # subprocess.run(f"ffprobe {final_wav_file}", shell=True)
+
+    # # Debugging: Examine final_audio.aac
+    # print("Examining final_audio.aac:")
+    # subprocess.run(f"ffprobe {final_audio_file}", shell=True)
 
     # Debugging: print final_audio_parts
-    print("Final audio parts:")
-    print(final_audio_parts)
+    # print("Final audio parts:")
+    # print(final_audio_parts)
 
     output_video_file = "translated_video_with_adjusted_audio.mp4"
     command_merge = f"ffmpeg -i {video_file} -i {final_audio_file} -c:v copy -map 0:v -map 1:a {output_video_file} -y"

@@ -15,15 +15,27 @@ def main(youtube_url, target_language="es"):
 
     video_file = os.path.join(download_path, "video.webm")
     subtitle_file = download_video_and_subtitles(youtube_url, download_path)
+    # if you want to skip download_video_and_subtitles(), comment out prev line and uncomment the next one
+    # subtitle_file = "downloads/video_name/video.en-US.vtt"
+
     if subtitle_file:
+        print("Extract audio")
         original_audio_file = extract_audio(video_file, audio_path)
+        
+        print("Split audio to voice and background")
         voice_file, bg_file = separate_audio(original_audio_file, audio_path)
+        
+        print("Parse subtitles")
         original_subtitles = parse_vtt(subtitle_file)
+
+        print("Translate subtitles")
         translated_subtitles = translate_subtitles(original_subtitles, target_language)
+
         print("Generate speech")
         speech_files = generate_speech(translated_subtitles, audio_path, target_language)
 
         if speech_files:
+            print("Start create_adjusted_audio_video")
             create_adjusted_audio_video(video_file, speech_files, bg_file, audio_path)
         else:
             print("Error: No speech files generated.")
