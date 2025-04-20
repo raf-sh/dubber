@@ -1,0 +1,5 @@
+ffprobe
+num2words
+omegaconf
+spleeter
+yt-dlp==2025.3.31
