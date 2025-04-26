@@ -2,6 +2,8 @@ import json
 import os
 from googletrans import Translator
 
+from utils.subtitles import convert_num_to_words
+
 class GoogleTranslator:
     def __init__(self, config):
         self.config = config

@@ -2,6 +2,8 @@ import os
 import subprocess
 import ffmpeg
 
+from utils.subtitles import time_to_seconds
+
 def get_duration(input_media):
     """Get duration of audio/video file"""
     try:
