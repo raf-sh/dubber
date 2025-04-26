@@ -1,0 +1,7 @@
+from processors.base import Processor
+from processors.video_downloader import VideoDownloader
+from processors.audio_extractor import AudioExtractor
+from processors.subtitle_processor import SubtitleProcessor
+from processors.translator import TranslationProcessor
+from processors.tts import TTSProcessor
+from processors.audio_video_generator import AudioVideoGenerator
