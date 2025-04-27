@@ -19,9 +19,9 @@ class Pipeline:
         """Setup default processing pipeline"""
         self.processors = [
             VideoDownloader(self.config),
-            AudioExtractor(self.config),
             SubtitleProcessor(self.config),
             TranslationProcessor(self.config),
+            AudioExtractor(self.config),
             TTSProcessor(self.config),
             AudioVideoGenerator(self.config)
         ]
