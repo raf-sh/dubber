@@ -3,6 +3,8 @@ import subprocess
 from urllib.parse import parse_qs, urlparse
 import yt_dlp
 
+from utils.helpers import run_subprocess_with_logging
+
 def get_video_id(url):
     """Extract video ID from a YouTube URL"""
     parsed_url = urlparse(url)
@@ -39,8 +41,8 @@ def download_video_and_subtitles(config):
 
 def extract_audio(config):
     """Extract audio from video file"""
-    command = f"ffmpeg -i {config.video_file} -q:a 0 -map a {config.original_audio_file}"
-    subprocess.run(command, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    command = f"ffmpeg -i {config.video_file} -q:a 0 -map a {config.original_audio_file} -y"
+    run_subprocess_with_logging(command)
     return config.original_audio_file
 
 def separate_audio(config):
@@ -48,10 +50,10 @@ def separate_audio(config):
     # Skip spleeter run if files already exist (for debugging)
     if os.path.exists(config.voice_file) and os.path.exists(config.bg_file):
         return config.voice_file, config.bg_file
-        
+
     command = f"spleeter separate -o {config.audio_path} -p spleeter:2stems {config.original_audio_file}"
-    subprocess.run(command, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-    
+    run_subprocess_with_logging(command)
+
     # Rename output files to standard locations
     stems_dir = os.path.join(config.audio_path, "original_audio")
     if os.path.exists(stems_dir):
