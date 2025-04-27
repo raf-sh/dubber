@@ -11,6 +11,7 @@ def main():
     parser.add_argument("--work-dir", "-w", default="downloads", help="Working directory (default: downloads)")
     parser.add_argument("--merge-segments", "-m", action="store_true", help="Merge subtitle segments")
     parser.add_argument("--add-silence", "-s", action="store_true", help="Add silence buffers instead of speeding up")
+    parser.add_argument("--youtube-cookies-path", "-c", type=str, default=None, help="Use YouTube cookies to download videos")
     
     args = parser.parse_args()
     
@@ -24,6 +25,7 @@ def main():
     # Configure optional features
     config.enable_segment_merging = args.merge_segments
     config.add_silence_buffers = args.add_silence
+    config.youtube_cookies_path = args.youtube_cookies_path
     
     # Create and run pipeline
     pipeline = Pipeline(config)

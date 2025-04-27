@@ -21,6 +21,10 @@ def download_video_and_subtitles(config):
         'writesubtitles': True,
         'outtmpl': os.path.join(config.project_dir, 'video.%(ext)s')
     }
+
+    if config.youtube_cookies_path:
+        ydl_opts['cookies'] = config.youtube_cookies_path
+
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([config.youtube_url])
 
