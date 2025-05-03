@@ -113,6 +113,13 @@ class GoogleGeminiTranslator:
         :param original_subtitles: Original subtitles for reference.
         :return: List of translated subtitles in the required format.
         """
+        output_file = os.path.join(
+            self.config.translations_path,
+            f"google_gemini_{self.config.target_language}_raw.txt"
+        )
+        with open(output_file, 'w', encoding='utf-8') as f:
+            f.write(vtt_text)
+
         lines = vtt_text.strip().split("\n")
         translated_subtitles = []
         current_text = ""
