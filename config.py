@@ -25,9 +25,11 @@ class Config:
         self.default_tts = "silero"
         
         # Translation service options
-        self.translation_services = ["google"]  # Add more services as they're implemented
-        self.default_translation = "google"
-        
+        self.translation_services = ["google", "google_gemini"]  # Add more services as they're implemented
+        self.default_translation = "google_gemini"
+        self.google_model_name = "gemini-2.0-flash"  # Default model for Google Gemini
+        self.google_api_key = os.getenv("GOOGLE_GENAI_API_KEY", None)  # Ensure this is set in your environment
+
         # Audio processing options
         self.sample_rate = 48000
         self.audio_format = "wav"
