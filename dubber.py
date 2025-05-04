@@ -35,16 +35,6 @@ def main():
     print(f"Target language: {args.language}")
     print(f"Work directory: {args.work_dir}")
 
-    # import os
-    # stems_dir = os.path.join(config.audio_path, "htdemucs", os.path.basename(config.original_audio_file).split('.')[0])
-    # print(f"Stems directory: {stems_dir}")
-    # if os.path.exists(stems_dir):
-    #     os.rename(os.path.join(stems_dir, "vocals.wav"), config.voice_file)
-    #     os.rename(os.path.join(stems_dir, "no_vocals.wav"), config.bg_file)
-    # print(f"Voice file: {config.voice_file}, old: {os.path.join(stems_dir, 'vocals.wav')}")
-    # print(f"bg_file file: {config.bg_file}, old: {os.path.join(stems_dir, 'no_vocals.wav')}")
-
-    # return
     try:
         if args.start_step:
             print(f"Starting pipeline from step: {args.start_step}")
