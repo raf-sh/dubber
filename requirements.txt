@@ -5,5 +5,5 @@ num2words
 omegaconf
 yt-dlp==2025.3.31
 google-genai==1.7.0
-torch==1.13.1
-torchaudio==0.13.1
+torchaudio==2.3.0
+torch
