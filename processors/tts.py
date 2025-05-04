@@ -18,5 +18,6 @@ class TTSProcessor(Processor):
         
         # Save output
         self.save_output(speech_files, f"{tts_system_name}_speech_files.json")
+        self.save_output(speech_files, f"output.json")
         
         return {"speech_files": speech_files}

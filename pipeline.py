@@ -36,7 +36,25 @@ class Pipeline:
             if result:
                 data.update(result)
         return data
-    
-    def run_from_step(self, step_name, input_data=None):
-        """Run pipeline from a specific step"""
-        found = False
+
+    def run_from_step(self, start_processor_name=None):
+        """Run the pipeline starting from a specific step"""
+        start_processing = start_processor_name is None
+        data = {}
+
+        for processor in self.processors:
+            processor_name = processor.__class__.__name__
+
+            if not start_processing:
+                if processor_name == start_processor_name:
+                    start_processing = True
+                else:
+                    # Load intermediate results for skipped steps
+                    print(f"Loading results for skipped processor: {processor_name}")
+                    saved_data = processor.load_output(f"{processor_name}_output.json")
+                    if saved_data is not None:
+                        data.update(saved_data)
+                    continue
+
+            print(f"Running processor: {processor_name}")
+            data = processor.process(data)  # Pass data to the processor and update it

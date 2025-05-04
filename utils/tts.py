@@ -40,7 +40,8 @@ class SileroTTS:
                         put_accent=True, 
                         put_yo=True
                     )
-                    torchaudio.save(gen_audio_path, audio.unsqueeze(0), self.sample_rate, backend="ffmpeg")
+                    # torchaudio.save(gen_audio_path, audio.unsqueeze(0), self.sample_rate, backend="ffmpeg")
+                    torchaudio.save(gen_audio_path, audio.unsqueeze(0), self.sample_rate)
                     speech_files.append({
                         'file': gen_audio_path,
                         'start': subtitle['start'],

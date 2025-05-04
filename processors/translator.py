@@ -18,5 +18,6 @@ class TranslationProcessor(Processor):
         # print(translated_subtitles)
         # Save output
         self.save_output(translated_subtitles, f"{translation_service}_translated.json")
+        self.save_output(translated_subtitles, f"output.json")
         
         return {"translated_subtitles": translated_subtitles}

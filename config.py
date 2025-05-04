@@ -6,6 +6,9 @@ class Config:
         self.target_language = target_language
         self.work_dir = work_dir
         
+        #Audio separator options
+        self.audio_separator = "demucs"  # Options: "demucs" or "spleeter"
+
         # Language mapping for TTS systems
         self.language_tts_map = {
             "tt": "tt",  # Tatar

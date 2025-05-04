@@ -63,7 +63,7 @@ class GoogleGeminiTranslator:
         )
 
         # Parse the response back into subtitle format
-        translated_subtitles = self._parse_translated_vtt(response.text, subtitles)
+        translated_subtitles = self._parse_translated_vtt(self._clean_webvtt_content(response.text), subtitles)
 
         # Save the translated subtitles to a file
         output_file = os.path.join(
@@ -185,6 +185,12 @@ class GoogleGeminiTranslator:
     """
         return prompt
 
+    def _clean_webvtt_content(self, content):
+        """Remove everything before the 'WEBVTT' header."""
+        start_index = content.find("WEBVTT")
+        if start_index == -1:
+            raise ValueError("Invalid WEBVTT file: 'WEBVTT' header not found.")
+        return content[start_index:]
 
 def get_translator(service_name, config):
     """Factory function to get translator based on service name"""

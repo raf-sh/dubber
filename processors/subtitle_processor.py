@@ -16,8 +16,11 @@ class SubtitleProcessor(Processor):
             # Save both original and merged subtitles
             self.save_output(subtitles, "original_subtitles.json")
             self.save_output(merged_subtitles, "merged_subtitles.json")
-            
+            self.save_output(subtitles, f"output.json")
+
             return {"subtitles": merged_subtitles, "original_subtitles": subtitles}
         else:
             self.save_output(subtitles, "subtitles.json")
+            self.save_output(subtitles, f"output.json")
+
             return {"subtitles": subtitles}
