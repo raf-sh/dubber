@@ -1,5 +1,9 @@
 ffprobe
+ffmpeg-python
+numpy<=1.24.3
 num2words
 omegaconf
-spleeter
 yt-dlp==2025.3.31
+google-genai==1.7.0
+torchaudio==2.3.0
+torch
