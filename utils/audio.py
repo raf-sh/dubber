@@ -2,6 +2,7 @@ import os
 import subprocess
 import ffmpeg
 
+from utils.helpers import run_subprocess_with_logging
 from utils.subtitles import time_to_seconds
 
 def get_duration(input_media):
@@ -46,11 +47,7 @@ def generate_silence(duration, output_path):
     """Generate silent audio of specified duration"""
     output_file = os.path.join(output_path, f"silence_{int(duration * 1000)}.wav")
     command = f"ffmpeg -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=44100 -t {duration} {output_file} -y"
-    with open("silence_output.log", "w") as log_file:
-        output = subprocess.run(command, shell=True, stdout=log_file, stderr=log_file)
-        if output.returncode != 0:
-            print(f"Error silence file generating: {output.stderr.decode() if output.stderr else 'No error'}")
-            return None
+    run_subprocess_with_logging(command)
     return output_file
 
 def create_adjusted_audio_video(config, speech_files):
