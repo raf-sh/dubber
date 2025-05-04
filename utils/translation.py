@@ -187,10 +187,11 @@ class GoogleGeminiTranslator:
 
     def _clean_webvtt_content(self, content):
         """Remove everything before the 'WEBVTT' header."""
-        start_index = content.find("WEBVTT")
-        if start_index == -1:
+        last_webvtt_index = content.lower().rfind("webvtt")
+
+        if last_webvtt_index == -1:
             raise ValueError("Invalid WEBVTT file: 'WEBVTT' header not found.")
-        return content[start_index:]
+        return content[last_webvtt_index:]
 
 def get_translator(service_name, config):
     """Factory function to get translator based on service name"""
