@@ -52,7 +52,7 @@ def separate_audio(config):
 
     if config.audio_separator == "demucs":
         # Use Demucs for audio separation
-        command = f"demucs --two-stems=vocals --float32 -o {config.audio_path} {config.original_audio_file}"
+        command = f"python3 -m demucs.separate --two-stems=vocals --two-stems=vocals --float32 -o {config.audio_path} {config.original_audio_file}"
         run_subprocess_with_logging(command)
         # Rename output files to standard locations
         stems_dir = os.path.join(config.audio_path, "htdemucs", os.path.basename(config.original_audio_file).split('.')[0])
