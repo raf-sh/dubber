@@ -86,26 +86,6 @@ class GoogleGeminiTranslator:
             for subtitle in subtitles
         )
 
-    def _build_prompt(self, subtitle_content: str, target_language: str) -> str:
-        """
-        Build the prompt for the LLM.
-        :param subtitle_content: Merged subtitle content.
-        :param target_language: Target language for translation.
-        :return: Prompt string.
-        """
-        prompt = f"""
-        You are a professional subtitle translator and editor working on dubbing videos from English to {target_language}. You will be provided with subtitles in WEBVTT format.
-        Your task:
-        1. Translate each subtitle line from English to {target_language}.
-        2. Preserve the original WEBVTT timestamp structure.
-        3. If a sentence is split across multiple fragments, merge them into a larger fragment if it improves the flow and keeps the spoken {target_language} translation within a similar duration.
-        4. Ensure the {target_language} translation would take approximately the same time to speak as the original English fragment to keep it in sync with the video.
-
-        Translate this content:
-        {subtitle_content}
-        """
-        return prompt
-
     def _parse_translated_vtt(self, vtt_text: str, original_subtitles: List[Dict]) -> List[Dict]:
         """
         Parse the translated VTT text into the required subtitle format.
